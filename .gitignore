@@ -1,0 +1,14 @@
+# Compiled binaries
+gemm_driver
+bfs_dfs_driver
+sssp_driver
+*.o
+*.exe
+*.out
+
+# VS Code
+.vscode/*
+!.vscode/c_cpp_properties.json
+
+# OS files
+.DS_Store
