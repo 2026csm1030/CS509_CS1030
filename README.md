@@ -112,6 +112,13 @@ g++ -std=c++17 -O2 -o assignment_01/gemm_driver \
     assignment_01/src/gemm_blocking.cpp
 ```
 
+CSR driver:
+```bash
+g++ -std=c++17 -O2 -o assignment_01/csr_driver \
+    assignment_01/driver/csr_driver.cpp \
+    assignment_01/src/csr.cpp
+```
+
 ### Execution
 Run a single test file (optional block size, default 32):
 ```bash
@@ -123,7 +130,16 @@ Run all test files in the `tests/` folder:
 ./assignment_01/gemm_driver --all assignment_01/tests 32
 ```
 
-Both can also be run via the common wrapper (`./wrapper`, options 2–4).
+CSR — run a single test file (add `--weighted` for weighted graphs):
+```bash
+./assignment_01/csr_driver assignment_01/tests/csr_test_10.txt
+```
+Run all CSR test files in `tests/`:
+```bash
+./assignment_01/csr_driver --all assignment_01/tests
+```
+
+Both drivers can also be run via the common wrapper (`./wrapper`, options 2–4).
 
 ### Test Cases and Result Table
 
@@ -147,6 +163,24 @@ Both can also be run via the common wrapper (`./wrapper`, options 2–4).
 Block size 32 gave the best performance on this machine and was used as the default in the driver and wrapper.
 
 *(Note: absolute timings above were measured on the development sandbox used to build and verify this code, not the final submission machine. Re-run the driver on your own machine before finalizing this table, since exact timings depend on CPU cache size and other machine-specific factors — the relative simple-vs-blocking and block-size trends should hold, but the numbers will differ.)*
+
+### Test Cases and Result Table (CSR Conversion)
+
+**Timing method:** timer starts immediately before `convert_to_csr()` is called and stops immediately after; file reading/parsing of the adjacency list is excluded. Single-run timings shown (conversion is fast and stable; re-run with multiple iterations on your machine if you want averaged figures for the very small cases).
+
+| Test File | Input Type | V | E | Expected Output | Actual Output | Execution Time | Status |
+|---|---|---|---|---|---|---|---|
+| csr_test_01_unweighted.txt | Adjacency list (unweighted) | 5 | 5 | `row_ptr: 0 2 4 7 9 10`, `col_idx: 1 2 0 3 0 3 4 1 2 2` | Matches expected | 0.0011 ms | Pass |
+| csr_test_02_weighted.txt | Adjacency list (weighted) | 5 | 6 | `row_ptr: 0 2 3 5 6 6`, `col_idx: 1 2 3 1 3 4`, `values: 4 1 1 2 5 3` | Matches expected | 0.0009 ms | Pass |
+| csr_10.txt | Adjacency list (unweighted), generated | 10 | 15 | Valid CSR arrays | Valid CSR arrays | 0.0010 ms | Pass |
+| csr_100.txt | Adjacency list (unweighted), generated | 100 | 200 | Valid CSR arrays | Valid CSR arrays | 0.0023 ms | Pass |
+| csr_10000.txt | Adjacency list (unweighted), generated | 10,000 | 20,000 | Valid CSR arrays | Valid CSR arrays | 0.3133 ms | Pass |
+| csr_50000.txt | Adjacency list (unweighted), generated | 50,000 | 100,000 | Valid CSR arrays | Valid CSR arrays | 1.6888 ms | Pass |
+| csr_100000.txt | Adjacency list (unweighted), generated | 100,000 | 200,000 | Valid CSR arrays | Valid CSR arrays | 3.1613 ms | Pass |
+
+Timing scales approximately linearly with V + E across these sizes (e.g. ~5× data from 10,000→50,000 vertices gives ~5.4× time; ~2× data from 50,000→100,000 gives ~1.9× time), consistent with the conversion's expected O(V + E) complexity.
+
+*(Note: as with the GEMM table, these timings were measured on the development sandbox, not the final submission machine — re-run and update with your own numbers.)*
 
 ### Complexity
 - **GEMM (both variants):** Time O(M·K·N), Space O(M·K + K·N + M·N) for input and output matrices.
