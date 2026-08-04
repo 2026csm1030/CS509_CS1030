@@ -1,5 +1,6 @@
 # Compiled binaries
 gemm_driver
+csr_driver
 bfs_dfs_driver
 sssp_driver
 *.o
