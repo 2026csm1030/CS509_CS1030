@@ -42,7 +42,12 @@ static std::vector<AssignmentEntry> registry()
           "assignment_01/gemm_driver",
           "assignment_01/tests",
           "32" // default block size passed to the driver
-      }
+      },
+      {"Assignment 01 - CSR Conversion",
+       {"assignment_01/driver/csr_driver.cpp", "assignment_01/src/csr.cpp"},
+       "assignment_01/csr_driver",
+       "assignment_01/tests",
+       ""}
       // Example of how a future assignment would be added:
       // {
       //     "Assignment 02 - <Title>",
