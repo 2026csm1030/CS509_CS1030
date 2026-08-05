@@ -1,11 +1,13 @@
 #include "csr.hpp"
 
-AdjacencyList read_adjacency_list(const std::string &path, bool weighted)
+using namespace std;
+
+AdjacencyList read_adjacency_list(const string &path, bool weighted)
 {
-  std::ifstream fin(path);
+  ifstream fin(path);
   if (!fin.is_open())
   {
-    throw std::runtime_error("Could not open input file: " + path);
+    throw runtime_error("Could not open input file: " + path);
   }
 
   AdjacencyList list;
@@ -13,11 +15,11 @@ AdjacencyList read_adjacency_list(const std::string &path, bool weighted)
 
   if (!(fin >> list.V >> list.E))
   {
-    throw std::runtime_error("Malformed header (expected: V E) in " + path);
+    throw runtime_error("Malformed header at" + path);
   }
   if (list.V < 0)
   {
-    throw std::runtime_error("Invalid vertex count in " + path);
+    throw runtime_error("Invalid vertex count in " + path);
   }
 
   list.adj.resize(list.V);
@@ -25,51 +27,59 @@ AdjacencyList read_adjacency_list(const std::string &path, bool weighted)
   for (int i = 0; i < list.V; ++i)
   {
     int u, degree;
+
     if (!(fin >> u >> degree))
     {
-      throw std::runtime_error("Malformed adjacency row " + std::to_string(i) + " in " + path);
+      throw runtime_error("Malformed adjacency row " + to_string(i) + " in " + path);
     }
+
     if (u < 0 || u >= list.V)
     {
-      throw std::runtime_error("Vertex id out of range in " + path);
+      throw runtime_error("Vertex id out of range in " + path);
     }
+
     list.adj[u].reserve(degree);
+
     for (int d = 0; d < degree; ++d)
     {
       int neighbor;
       double w = 1.0;
+
       if (weighted)
       {
         if (!(fin >> neighbor >> w))
         {
-          throw std::runtime_error("Malformed weighted edge in " + path);
+          throw runtime_error("Malformed weighted edge in " + path);
         }
         if (w <= 0.0)
         {
-          throw std::runtime_error("Non-positive edge weight in " + path);
+          throw runtime_error("Non-positive edge weight in " + path);
         }
       }
       else
       {
         if (!(fin >> neighbor))
         {
-          throw std::runtime_error("Malformed edge in " + path);
+          throw runtime_error("Malformed edge in " + path);
         }
       }
+
       list.adj[u].push_back({neighbor, w});
     }
   }
 
-  std::string tag;
+  string tag;
+
   if (fin >> tag)
+
   {
     if (tag != "SOURCE")
     {
-      throw std::runtime_error("Expected SOURCE tag in " + path);
+      throw runtime_error("Expected SOURCE tag in " + path);
     }
     if (!(fin >> list.source))
     {
-      throw std::runtime_error("Missing source vertex in " + path);
+      throw runtime_error("Missing source vertex in " + path);
     }
   }
 
@@ -77,8 +87,7 @@ AdjacencyList read_adjacency_list(const std::string &path, bool weighted)
 }
 
 // Adjacency-list -> CSR conversion.
-// This is preprocessing per the assignment spec: its runtime must never be
-// included inside a timed algorithm region.
+
 CSRGraph convert_to_csr(const AdjacencyList &list)
 {
   CSRGraph csr;
@@ -86,26 +95,31 @@ CSRGraph convert_to_csr(const AdjacencyList &list)
 
   csr.row_ptr.assign(list.V + 1, 0);
 
-  // First pass: compute degree-based offsets.
   for (int u = 0; u < list.V; ++u)
   {
     csr.row_ptr[u + 1] = csr.row_ptr[u] + static_cast<int>(list.adj[u].size());
   }
 
   int total_edges = csr.row_ptr[list.V];
+
   csr.E = total_edges;
   csr.col_idx.resize(total_edges);
-  if (list.weighted)
-    csr.values.resize(total_edges);
 
-  // Second pass: fill col_idx (and values) using row_ptr as write cursors.
-  std::vector<int> cursor(csr.row_ptr.begin(), csr.row_ptr.end() - 1);
+  if (list.weighted)
+  {
+    csr.values.resize(total_edges);
+  }
+
+  vector<int> cursor(csr.row_ptr.begin(), csr.row_ptr.end() - 1);
+
   for (int u = 0; u < list.V; ++u)
   {
     for (const Edge &e : list.adj[u])
     {
       int pos = cursor[u]++;
+
       csr.col_idx[pos] = e.to;
+
       if (list.weighted)
         csr.values[pos] = e.weight;
     }
