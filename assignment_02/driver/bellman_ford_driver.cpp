@@ -45,16 +45,16 @@ void process_single_file(const string &path)
   cout << "\nProcessing file: " << path << "\n";
   try
   {
-    // 1. Read input adjacency list (weighted = true)
+    // 1. read input adjacency list
     AdjacencyList adj_list = read_adjacency_list(path, true);
 
-    // 2. Convert to CSR structure (Preprocessing - NOT TIMED)
+    // 2. convert to CSR structure (NOT TIMED)
     CSRGraph csr = convert_to_csr(adj_list);
 
-    // 3. Execute Bellman-Ford
+    // 3. run Bellman-Ford
     BellmanFordResult res = run_bellman_ford(csr, adj_list.source);
 
-    // 4. Output results
+    // 4. print result
     print_result(res);
   }
   catch (const exception &e)
@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
   }
 
   string arg1 = argv[1];
+
   if (arg1 == "--all")
   {
     if (argc < 3)
@@ -79,7 +80,9 @@ int main(int argc, char *argv[])
       cerr << "Error: Missing directory path for --all\n";
       return 1;
     }
+
     string dir_path = argv[2];
+
     for (const auto &entry : fs::directory_iterator(dir_path))
     {
       if (entry.path().extension() == ".txt" && entry.path().filename().string().rfind("bf_", 0) == 0)
