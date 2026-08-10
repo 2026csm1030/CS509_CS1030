@@ -1,20 +1,4 @@
-# CS509 Laboratory Repository — Individual Tasks (Assignment 2)
-
 This repository contains the C++ implementations and driver programs. The focus of this assignment is on Single-Source Shortest Path (SSSP) using the **Bellman-Ford Algorithm** on sparse CSR graphs, and All-Pairs Shortest Path (APSP) using the **Floyd-Warshall Algorithm** on dense adjacency matrices. Both algorithms accommodate negative edge weights and handle negative-weight cycle detection.
-
-## Student Details
-
-* **Student Name:** Prashik
-* **Entry Number:** 2026CSM1030
-* **Work Mode:** Individual
-
-## Language and Environment
-
-* **Programming Language:** C++ (C++17 standard)
-* **Compiler:** `g++` (GCC) 9.0+ or `clang++`
-* **Compilation Flags:** `-std=c++17 -O2 -Wall`
-* **Timing Mechanism:** `std::chrono::high_resolution_clock` (reported in milliseconds `ms`)
-* **Operating System:** Linux / POSIX-compliant system
 
 ## Directory Structure
 
