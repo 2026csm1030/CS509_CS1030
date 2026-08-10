@@ -47,6 +47,19 @@ static std::vector<AssignmentEntry> registry()
        {"assignment_01/driver/csr_driver.cpp", "assignment_01/src/csr.cpp"},
        "assignment_01/csr_driver",
        "assignment_01/tests",
+       ""},
+      {"Assignment 02 - Bellman-Ford Shortest Path",
+       {"assignment_02/driver/bellman_ford_driver.cpp",
+        "assignment_02/src/bellman_ford.cpp",
+        "assignment_01/src/csr.cpp"},
+       "assignment_02/bf_driver",
+       "assignment_02/tests",
+       ""},
+      {"Assignment 02 - Floyd-Warshall All-Pairs Shortest Path",
+       {"assignment_02/driver/floyd_warshall_driver.cpp",
+        "assignment_02/src/floyd_warshall.cpp"},
+       "assignment_02/fw_driver",
+       "assignment_02/tests",
        ""}
       // Example of how a future assignment would be added:
       // {
