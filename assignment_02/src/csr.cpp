@@ -5,9 +5,10 @@ using namespace std;
 AdjacencyList read_adjacency_list(const string &path, bool weighted)
 {
   ifstream fin(path);
+
   if (!fin.is_open())
   {
-    throw runtime_error("Could not open input file: " + path);
+    throw runtime_error("Could not open input file");
   }
 
   AdjacencyList list;
@@ -15,11 +16,12 @@ AdjacencyList read_adjacency_list(const string &path, bool weighted)
 
   if (!(fin >> list.V >> list.E))
   {
-    throw runtime_error("Malformed header at" + path);
+    throw runtime_error("Malformed header");
   }
+
   if (list.V < 0)
   {
-    throw runtime_error("Invalid vertex count in " + path);
+    throw runtime_error("Invalid vertex count");
   }
 
   list.adj.resize(list.V);
@@ -30,12 +32,12 @@ AdjacencyList read_adjacency_list(const string &path, bool weighted)
 
     if (!(fin >> u >> degree))
     {
-      throw runtime_error("Malformed adjacency row " + to_string(i) + " in " + path);
+      throw runtime_error("Malformed adjacency row");
     }
 
     if (u < 0 || u >= list.V)
     {
-      throw runtime_error("Vertex id out of range in " + path);
+      throw runtime_error("Vertex id out of range");
     }
 
     list.adj[u].reserve(degree);
@@ -49,7 +51,7 @@ AdjacencyList read_adjacency_list(const string &path, bool weighted)
       {
         if (!(fin >> neighbor >> w))
         {
-          throw runtime_error("Malformed weighted edge in " + path);
+          throw runtime_error("Malformed weighted edge");
         }
 
         // commented the non-positive weights
@@ -62,7 +64,7 @@ AdjacencyList read_adjacency_list(const string &path, bool weighted)
       {
         if (!(fin >> neighbor))
         {
-          throw runtime_error("Malformed edge in " + path);
+          throw runtime_error("Malformed edge");
         }
       }
 
@@ -77,11 +79,11 @@ AdjacencyList read_adjacency_list(const string &path, bool weighted)
   {
     if (tag != "SOURCE")
     {
-      throw runtime_error("Expected SOURCE tag in " + path);
+      throw runtime_error("Expected SOURCE tag");
     }
     if (!(fin >> list.source))
     {
-      throw runtime_error("Missing source vertex in " + path);
+      throw runtime_error("Missing source vertex");
     }
   }
 
@@ -123,7 +125,9 @@ CSRGraph convert_to_csr(const AdjacencyList &list)
       csr.col_idx[pos] = e.to;
 
       if (list.weighted)
+      {
         csr.values[pos] = e.weight;
+      }
     }
   }
 
