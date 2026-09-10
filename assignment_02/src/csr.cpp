@@ -95,41 +95,102 @@ AdjacencyList read_adjacency_list(const string &path, bool weighted)
 CSRGraph convert_to_csr(const AdjacencyList &list)
 {
   CSRGraph csr;
+
+  // Number of vertices stays the same
   csr.V = list.V;
 
-  csr.row_ptr.assign(list.V + 1, 0);
+  // ----------------------------------------
+  // Step 1: Calculate row_ptr
+  // ----------------------------------------
 
-  for (int u = 0; u < list.V; ++u)
+  csr.row_ptr.resize(csr.V + 1);
+
+  csr.row_ptr[0] = 0;
+
+  for (int u = 0; u < csr.V; u++)
   {
-    csr.row_ptr[u + 1] = csr.row_ptr[u] + static_cast<int>(list.adj[u].size());
+    csr.row_ptr[u + 1] =
+        csr.row_ptr[u] + list.adj[u].size();
   }
 
-  int total_edges = csr.row_ptr[list.V];
+  // Total number of edges
+  csr.E = csr.row_ptr[csr.V];
 
-  csr.E = total_edges;
-  csr.col_idx.resize(total_edges);
+  // ----------------------------------------
+  // Step 2: Create col_idx
+  // ----------------------------------------
 
-  if (list.weighted)
-  {
-    csr.values.resize(total_edges);
-  }
+  csr.col_idx.resize(csr.E);
 
-  vector<int> cursor(csr.row_ptr.begin(), csr.row_ptr.end() - 1);
+  int position = 0;
 
-  for (int u = 0; u < list.V; ++u)
+  for (int u = 0; u < csr.V; u++)
   {
     for (const Edge &e : list.adj[u])
     {
-      int pos = cursor[u]++;
+      csr.col_idx[position] = e.to;
+      position++;
+    }
+  }
 
-      csr.col_idx[pos] = e.to;
+  // ----------------------------------------
+  // Step 3: Store weights if graph is weighted
+  // ----------------------------------------
 
-      if (list.weighted)
+  if (list.weighted)
+  {
+    csr.values.resize(csr.E);
+
+    position = 0;
+
+    for (int u = 0; u < csr.V; u++)
+    {
+      for (const Edge &e : list.adj[u])
       {
-        csr.values[pos] = e.weight;
+        csr.values[position] = e.weight;
+        position++;
       }
     }
   }
 
   return csr;
+
+  // CSRGraph csr;
+  // csr.V = list.V;
+
+  // csr.row_ptr.assign(list.V + 1, 0);
+
+  // for (int u = 0; u < list.V; ++u)
+  // {
+  //   csr.row_ptr[u + 1] = csr.row_ptr[u] + static_cast<int>(list.adj[u].size());
+  // }
+
+  // int total_edges = csr.row_ptr[list.V];
+
+  // csr.E = total_edges;
+  // csr.col_idx.resize(total_edges);
+
+  // if (list.weighted)
+  // {
+  //   csr.values.resize(total_edges);
+  // }
+
+  // vector<int> cursor(csr.row_ptr.begin(), csr.row_ptr.end() - 1);
+
+  // for (int u = 0; u < list.V; ++u)
+  // {
+  //   for (const Edge &e : list.adj[u])
+  //   {
+  //     int pos = cursor[u]++;
+
+  //     csr.col_idx[pos] = e.to;
+
+  //     if (list.weighted)
+  //     {
+  //       csr.values[pos] = e.weight;
+  //     }
+  //   }
+  // }
+
+  // return csr;
 }

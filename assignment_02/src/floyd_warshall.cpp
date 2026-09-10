@@ -108,3 +108,43 @@ FloydWarshallResult run_floyd_warshall(const vector<vector<double>> &adj_matrix,
 
   return result;
 }
+
+// def floyd_warshall(graph, n):
+//     INF = float('inf')
+
+//     # Create distance matrix
+//     dist = [[INF] * n for _ in range(n)]
+
+//     # Distance from a vertex to itself is 0
+//     for i in range(n):
+//         dist[i][i] = 0
+
+//     # Fill direct edges
+//     for u in graph:
+//         for v, weight in graph[u]:
+//             dist[u][v] = weight
+
+//     # Floyd-Warshall
+//     for k in range(n):
+//         for i in range(n):
+//             for j in range(n):
+//                 dist[i][j] = min(
+//                     dist[i][j],
+//                     dist[i][k] + dist[k][j]
+//                 )
+
+//     return dist
+
+// graph = {
+//     0: [(1, 3), (2, 10)],
+//     1: [(2, 2)],
+//     2: [(3, 1)],
+//     3: [(0, 2)]
+// }
+
+// n = 4
+
+// dist = floyd_warshall(graph, n)
+
+// for row in dist:
+//     print(row)

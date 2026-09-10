@@ -98,3 +98,40 @@ BellmanFordResult run_bellman_ford(const CSRGraph &csr, int source)
 
   return result;
 }
+
+// def bellman_ford(vertices, edges, source):
+//     # Distance from source to every vertex
+//     dist = [float('inf')] * vertices
+//     dist[source] = 0
+
+//     # Relax all edges V - 1 times
+//     for _ in range(vertices - 1):
+//         updated = False
+
+//         for u, v, weight in edges:
+//             if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+//                 dist[v] = dist[u] + weight
+//                 updated = True
+
+//         # If nothing changed, we're done
+//         if not updated:
+//             break
+
+//     # Check for negative-weight cycle
+//     for u, v, weight in edges:
+//         if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+//             return None  # Negative cycle exists
+
+//     return dist
+
+// edges = [
+//     (0, 1, 4),
+//     (0, 2, 5),
+//     (1, 2, -3),
+//     (2, 3, 2),
+//     (1, 3, 4)
+// ]
+
+// dist = bellman_ford(4, edges, 0)
+
+// print(dist)
