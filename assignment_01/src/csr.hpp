@@ -14,6 +14,11 @@ struct Edge
   double weight;
 };
 
+// adj[0] = [ {to:2, weight:5}, {to:3, weight:1} ]
+
+// adj = [[] for _ in range(V)]
+// adj[0] = [(2, 5), (3, 1)]  # list of (neighbor, weight) tuples
+
 struct AdjacencyList
 {
   int V = 0;

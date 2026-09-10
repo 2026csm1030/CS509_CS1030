@@ -36,6 +36,7 @@ static void run_one_file(const string &path, int block_size)
   cout << "Test file: " << path << "\n";
 
   GemmInput in;
+
   try
   {
     in = read_gemm_input(path);
@@ -52,22 +53,28 @@ static void run_one_file(const string &path, int block_size)
   auto t1_start = Clock::now();
   Matrix C_simple = gemm_simple(in.A, in.B);
   auto t1_end = Clock::now();
+
   double simple_ms = chrono::duration<double, milli>(t1_end - t1_start).count();
 
   cout << "Algorithm: GEMM Simple\n";
   cout << "Result matrix:\n";
+
   print_matrix(C_simple);
+
   cout << "Execution time: " << fixed << setprecision(4)
        << simple_ms << " ms\n\n";
 
   auto t2_start = Clock::now();
   Matrix C_blocking = gemm_blocking(in.A, in.B, block_size);
   auto t2_end = Clock::now();
+
   double blocking_ms = chrono::duration<double, milli>(t2_end - t2_start).count();
 
   cout << "Algorithm: GEMM Blocking (block size = " << block_size << ")\n";
   cout << "Result matrix:\n";
+
   print_matrix(C_blocking);
+
   cout << "Execution time: " << fixed << setprecision(4)
        << blocking_ms << " ms\n\n";
 

@@ -16,54 +16,138 @@ using namespace std;
 namespace fs = filesystem;
 using Clock = chrono::steady_clock;
 
+// static void print_csr_summary(const CSRGraph &csr, bool weighted)
+// {
+//   cout << "CSR arrays:\n";
+//   cout << "  V = " << csr.V << ", total entries (E, directed) = " << csr.E << "\n";
+
+//   const size_t PREVIEW_LIMIT = 30;
+//   bool truncate = csr.row_ptr.size() > PREVIEW_LIMIT || csr.col_idx.size() > PREVIEW_LIMIT;
+
+//   auto print_int_vec = [&](const string &label, const vector<int> &v)
+//   {
+//     cout << "  " << label << " (" << v.size() << " entries): ";
+//     size_t limit = truncate ? min(v.size(), PREVIEW_LIMIT) : v.size();
+
+//     for (size_t i = 0; i < limit; ++i)
+//     {
+//       cout << v[i];
+//       if (i + 1 < limit)
+//         cout << ' ';
+//     }
+
+//     if (truncate && v.size() > limit)
+//     {
+//       cout << " ... (truncated)";
+//     }
+
+//     cout << "\n";
+//   };
+
+//   print_int_vec("row_ptr", csr.row_ptr);
+//   print_int_vec("col_idx", csr.col_idx);
+
+//   if (weighted)
+//   {
+//     cout << "  values  (" << csr.values.size() << " entries): ";
+//     size_t limit = truncate ? min(csr.values.size(), PREVIEW_LIMIT) : csr.values.size();
+
+//     for (size_t i = 0; i < limit; ++i)
+//     {
+//       cout << csr.values[i];
+//       if (i + 1 < limit)
+//         cout << ' ';
+//     }
+
+//     if (truncate && csr.values.size() > limit)
+//     {
+//       cout << " ... (truncated)";
+//     }
+
+//     cout << "\n";
+//   }
+// }
+
 static void print_csr_summary(const CSRGraph &csr, bool weighted)
 {
   cout << "CSR arrays:\n";
   cout << "  V = " << csr.V << ", total entries (E, directed) = " << csr.E << "\n";
 
   const size_t PREVIEW_LIMIT = 30;
-  bool truncate = csr.row_ptr.size() > PREVIEW_LIMIT || csr.col_idx.size() > PREVIEW_LIMIT;
 
-  auto print_int_vec = [&](const string &label, const vector<int> &v)
+  bool row_ptr_too_big = csr.row_ptr.size() > PREVIEW_LIMIT;
+  bool col_idx_too_big = csr.col_idx.size() > PREVIEW_LIMIT;
+
+  bool truncate = row_ptr_too_big || col_idx_too_big;
+
+  // --- print row_ptr ---
+  cout << "  row_ptr (" << csr.row_ptr.size() << " entries): ";
+  size_t row_ptr_limit = csr.row_ptr.size();
+
+  if (truncate && row_ptr_limit > PREVIEW_LIMIT)
   {
-    cout << "  " << label << " (" << v.size() << " entries): ";
-    size_t limit = truncate ? min(v.size(), PREVIEW_LIMIT) : v.size();
+    row_ptr_limit = PREVIEW_LIMIT;
+  }
 
-    for (size_t i = 0; i < limit; ++i)
+  for (size_t i = 0; i < row_ptr_limit; ++i)
+  {
+    cout << csr.row_ptr[i];
+
+    if (i + 1 < row_ptr_limit)
     {
-      cout << v[i];
-      if (i + 1 < limit)
-        cout << ' ';
+      cout << ' ';
     }
+  }
 
-    if (truncate && v.size() > limit)
+  if (truncate && csr.row_ptr.size() > row_ptr_limit)
+  {
+    cout << " ... (truncated)";
+  }
+
+  cout << "\n";
+
+  // --- print col_idx ---
+  cout << "  col_idx (" << csr.col_idx.size() << " entries): ";
+  size_t col_idx_limit = csr.col_idx.size();
+  if (truncate && col_idx_limit > PREVIEW_LIMIT)
+  {
+    col_idx_limit = PREVIEW_LIMIT;
+  }
+  for (size_t i = 0; i < col_idx_limit; ++i)
+  {
+    cout << csr.col_idx[i];
+    if (i + 1 < col_idx_limit)
     {
-      cout << " ... (truncated)";
+      cout << ' ';
     }
+  }
+  if (truncate && csr.col_idx.size() > col_idx_limit)
+  {
+    cout << " ... (truncated)";
+  }
+  cout << "\n";
 
-    cout << "\n";
-  };
-
-  print_int_vec("row_ptr", csr.row_ptr);
-  print_int_vec("col_idx", csr.col_idx);
-
+  // --- print values (only if weighted) ---
   if (weighted)
   {
     cout << "  values  (" << csr.values.size() << " entries): ";
-    size_t limit = truncate ? min(csr.values.size(), PREVIEW_LIMIT) : csr.values.size();
-
-    for (size_t i = 0; i < limit; ++i)
+    size_t values_limit = csr.values.size();
+    if (truncate && values_limit > PREVIEW_LIMIT)
+    {
+      values_limit = PREVIEW_LIMIT;
+    }
+    for (size_t i = 0; i < values_limit; ++i)
     {
       cout << csr.values[i];
-      if (i + 1 < limit)
+      if (i + 1 < values_limit)
+      {
         cout << ' ';
+      }
     }
-
-    if (truncate && csr.values.size() > limit)
+    if (truncate && csr.values.size() > values_limit)
     {
       cout << " ... (truncated)";
     }
-
     cout << "\n";
   }
 }
@@ -90,6 +174,7 @@ static bool run_one_file(const string &path, bool weighted)
   auto t0 = Clock::now();
   CSRGraph csr = convert_to_csr(list);
   auto t1 = Clock::now();
+
   double ms = chrono::duration<double, milli>(t1 - t0).count();
 
   cout << "Algorithm: Adjacency List -> CSR Conversion\n";

@@ -20,12 +20,14 @@ struct Matrix
   vector<double> data;
 
   Matrix() = default;
+
   Matrix(int r, int c) : rows(r), cols(c), data(static_cast<size_t>(r) * c, 0.0) {}
 
   double &at(int r, int c)
   {
     return data[static_cast<size_t>(r) * cols + c];
   }
+
   double at(int r, int c) const
   {
     return data[static_cast<size_t>(r) * cols + c];
@@ -51,6 +53,7 @@ inline GemmInput read_gemm_input(const string &path)
   }
 
   GemmInput in;
+
   if (!(fin >> in.M >> in.K >> in.N))
   {
     throw runtime_error("Malformed header in " + path);
