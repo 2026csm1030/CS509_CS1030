@@ -23,11 +23,13 @@ struct Matrix
 
   Matrix(int r, int c) : rows(r), cols(c), data(static_cast<size_t>(r) * c, 0.0) {}
 
+  // using & for write
   double &at(int r, int c)
   {
     return data[static_cast<size_t>(r) * cols + c];
   }
 
+  // ready only
   double at(int r, int c) const
   {
     return data[static_cast<size_t>(r) * cols + c];
