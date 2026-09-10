@@ -17,21 +17,21 @@
 #include <cstdlib>
 #include <algorithm>
 
-namespace fs = std::filesystem;
+using namespace std;
 
-// Describes one assignment the wrapper knows how to build and run.
+namespace fs = filesystem;
+
 struct AssignmentEntry
 {
-  std::string display_name;         // shown in the menu
-  std::vector<std::string> sources; // all .cpp files needed to build the driver
-  std::string binary_path;          // where the compiled driver goes
-  std::string test_dir;             // folder containing this assignment's test files
-  std::string extra_run_args;       // args appended after the test file/--all path (e.g. block size)
+  string display_name;    // shown in the menu
+  vector<string> sources; // all .cpp files needed to build the driver
+  string binary_path;     // where the compiled driver goes
+  string test_dir;        // folder containing this assignment's test files
+  string extra_run_args;  // args appended after the test file/--all path (e.g. block size)
 };
 
 // ---- Registry of all assignments the wrapper can build/run ----
-// Add new assignments here as they are completed during the semester.
-static std::vector<AssignmentEntry> registry()
+static vector<AssignmentEntry> registry()
 {
   return {
       {
@@ -60,6 +60,34 @@ static std::vector<AssignmentEntry> registry()
         "assignment_02/src/floyd_warshall.cpp"},
        "assignment_02/fw_driver",
        "assignment_02/tests",
+       ""},
+      {"Assignment 03 - Kruskal's MST",
+       {"assignment_03/driver/kruskal_driver.cpp",
+        "assignment_03/src/kruskal.cpp",
+        "assignment_01/src/csr.cpp"},
+       "assignment_03/kruskal_driver",
+       "assignment_03/tests",
+       ""},
+      {"Assignment 03 - Prim's MST",
+       {"assignment_03/driver/prim_driver.cpp",
+        "assignment_03/src/prim.cpp",
+        "assignment_01/src/csr.cpp"},
+       "assignment_03/prim_driver",
+       "assignment_03/tests",
+       ""},
+      {"Assignment 04 - Vertex Coloring (Graph Coloring)",
+       {"assignment_04/driver/vertex_coloring_driver.cpp",
+        "assignment_04/src/vertex_coloring.cpp",
+        "assignment_01/src/csr.cpp"},
+       "assignment_04/vertex_coloring_driver",
+       "assignment_04/tests",
+       ""},
+      {"Assignment 04 - PageRank",
+       {"assignment_04/driver/pagerank_driver.cpp",
+        "assignment_04/src/pagerank.cpp",
+        "assignment_01/src/csr.cpp"},
+       "assignment_04/pagerank_driver",
+       "assignment_04/tests",
        ""}
       // Example of how a future assignment would be added:
       // {
@@ -72,7 +100,7 @@ static std::vector<AssignmentEntry> registry()
   };
 }
 
-static bool file_exists(const std::string &path)
+static bool file_exists(const string &path)
 {
   return fs::exists(path);
 }
@@ -84,43 +112,52 @@ static bool compile_assignment(const AssignmentEntry &a)
   {
     if (!file_exists(src))
     {
-      std::cerr << "Error: required source file not found: " << src << "\n";
+      cerr << "Error: required source file not found: " << src << "\n";
       return false;
     }
   }
 
-  std::string cmd = "g++ -std=c++17 -O2 -o " + a.binary_path;
+  string cmd = "g++ -std=c++17 -O2 -o " + a.binary_path;
   for (const auto &src : a.sources)
     cmd += " " + src;
 
-  std::cout << "Compiling: " << a.display_name << "\n";
-  std::cout << "  " << cmd << "\n";
-  int result = std::system(cmd.c_str());
+  cout << "Compiling: " << a.display_name << "\n";
+
+  cout << "  " << cmd << "\n";
+
+  int result = system(cmd.c_str());
   if (result != 0)
+
   {
-    std::cerr << "Error: compilation failed for " << a.display_name << "\n";
+    cerr << "Error: compilation failed for " << a.display_name << "\n";
     return false;
   }
-  std::cout << "Build succeeded: " << a.binary_path << "\n";
+
+  cout << "Build succeeded: " << a.binary_path << "\n";
+
   return true;
 }
 
 // Runs the compiled driver on one specific test file.
-static bool run_single_test(const AssignmentEntry &a, const std::string &test_file)
+static bool run_single_test(const AssignmentEntry &a, const string &test_file)
 {
   if (!file_exists(a.binary_path))
   {
-    std::cerr << "Error: binary not built yet. Compile " << a.display_name << " first.\n";
+    cerr << "Error: binary not built yet. Compile " << a.display_name << " first.\n";
     return false;
   }
-  std::string full_path = a.test_dir + "/" + test_file;
+
+  string full_path = a.test_dir + "/" + test_file;
+
   if (!file_exists(full_path))
   {
-    std::cerr << "Error: test file not found: " << full_path << "\n";
+    cerr << "Error: test file not found: " << full_path << "\n";
     return false;
   }
-  std::string cmd = a.binary_path + " " + full_path + " " + a.extra_run_args;
-  return std::system(cmd.c_str()) == 0;
+
+  string cmd = a.binary_path + " " + full_path + " " + a.extra_run_args;
+
+  return system(cmd.c_str()) == 0;
 }
 
 // Runs the compiled driver on every test file for this assignment.
@@ -128,72 +165,86 @@ static bool run_all_tests(const AssignmentEntry &a)
 {
   if (!file_exists(a.binary_path))
   {
-    std::cerr << "Error: binary not built yet. Compile " << a.display_name << " first.\n";
+    cerr << "Error: binary not built yet. Compile " << a.display_name << " first.\n";
     return false;
   }
+
   if (!fs::exists(a.test_dir) || !fs::is_directory(a.test_dir))
   {
-    std::cerr << "Error: test directory not found: " << a.test_dir << "\n";
+    cerr << "Error: test directory not found: " << a.test_dir << "\n";
     return false;
   }
-  std::string cmd = a.binary_path + " --all " + a.test_dir + " " + a.extra_run_args;
-  return std::system(cmd.c_str()) == 0;
+
+  string cmd = a.binary_path + " --all " + a.test_dir + " " + a.extra_run_args;
+
+  return system(cmd.c_str()) == 0;
 }
 
-static void print_assignment_list(const std::vector<AssignmentEntry> &list)
+static void print_assignment_list(const vector<AssignmentEntry> &list)
 {
-  std::cout << "\nAvailable assignments:\n";
+  cout << "\nAvailable assignments:\n";
+
   for (size_t i = 0; i < list.size(); ++i)
   {
-    std::cout << "  " << (i + 1) << ". " << list[i].display_name << "\n";
+    cout << "  " << (i + 1) << ". " << list[i].display_name << "\n";
   }
 }
 
-static int select_assignment(const std::vector<AssignmentEntry> &list)
+static int select_assignment(const vector<AssignmentEntry> &list)
 {
   print_assignment_list(list);
-  std::cout << "Select assignment number: ";
+
+  cout << "Select assignment number: ";
+
   int choice;
-  if (!(std::cin >> choice) || choice < 1 || choice > static_cast<int>(list.size()))
+
+  if (!(cin >> choice) || choice < 1 || choice > static_cast<int>(list.size()))
   {
-    std::cerr << "Error: invalid selection.\n";
-    std::cin.clear();
-    std::cin.ignore(10000, '\n');
+    cerr << "Error: invalid selection.\n";
+    cin.clear();
+    cin.ignore(10000, '\n');
+
     return -1;
   }
+
   return choice - 1;
 }
 
 static void list_test_files(const AssignmentEntry &a)
 {
-  std::cout << "\nTest files in " << a.test_dir << ":\n";
+  cout << "\nTest files in " << a.test_dir << ":\n";
+
   if (!fs::exists(a.test_dir))
   {
-    std::cerr << "Error: test directory not found: " << a.test_dir << "\n";
+    cerr << "Error: test directory not found: " << a.test_dir << "\n";
     return;
   }
-  std::vector<std::string> files;
+
+  vector<string> files;
+
   for (const auto &entry : fs::directory_iterator(a.test_dir))
   {
     if (entry.path().extension() == ".txt")
       files.push_back(entry.path().filename().string());
   }
-  std::sort(files.begin(), files.end());
+
+  sort(files.begin(), files.end());
+
   for (const auto &f : files)
-    std::cout << "  - " << f << "\n";
+    cout << "  - " << f << "\n";
 }
 
 static void print_menu()
 {
-  std::cout << "\n================ CS509 Common Wrapper ================\n";
-  std::cout << "1. List available assignments\n";
-  std::cout << "2. Compile a selected assignment\n";
-  std::cout << "3. Run one test file for a selected assignment\n";
-  std::cout << "4. Run all test files for a selected assignment\n";
-  std::cout << "5. Compile and run ALL submitted assignments (all test files)\n";
-  std::cout << "6. Exit\n";
-  std::cout << "=======================================================\n";
-  std::cout << "Choice: ";
+  cout << "\n================ CS509 Common Wrapper ================\n";
+  cout << "1. List available assignments\n";
+  cout << "2. Compile a selected assignment\n";
+  cout << "3. Run one test file for a selected assignment\n";
+  cout << "4. Run all test files for a selected assignment\n";
+  cout << "5. Compile and run ALL submitted assignments (all test files)\n";
+  cout << "6. Exit\n";
+  cout << "=======================================================\n";
+  cout << "Choice: ";
 }
 
 int main()
@@ -204,11 +255,12 @@ int main()
   {
     print_menu();
     int choice;
-    if (!(std::cin >> choice))
+
+    if (!(cin >> choice))
     {
-      std::cerr << "Error: invalid input.\n";
-      std::cin.clear();
-      std::cin.ignore(10000, '\n');
+      cerr << "Error: invalid input.\n";
+      cin.clear();
+      cin.ignore(10000, '\n');
       continue;
     }
 
@@ -228,9 +280,9 @@ int main()
       if (idx >= 0)
       {
         list_test_files(assignments[idx]);
-        std::cout << "Enter test file name (e.g. gemm_test_01.txt): ";
-        std::string fname;
-        std::cin >> fname;
+        cout << "Enter test file name (e.g. gemm_test_01.txt): ";
+        string fname;
+        cin >> fname;
         run_single_test(assignments[idx], fname);
       }
     }
@@ -242,29 +294,29 @@ int main()
     }
     else if (choice == 5)
     {
-      std::cout << "\nCompiling and running all submitted assignments...\n";
+      cout << "\nCompiling and running all submitted assignments...\n";
       for (const auto &a : assignments)
       {
-        std::cout << "\n---- " << a.display_name << " ----\n";
+        cout << "\n---- " << a.display_name << " ----\n";
         if (compile_assignment(a))
         {
           run_all_tests(a);
         }
         else
         {
-          std::cerr << "Skipping run for " << a.display_name
-                    << " due to compilation failure.\n";
+          cerr << "Skipping run for " << a.display_name
+               << " due to compilation failure.\n";
         }
       }
     }
     else if (choice == 6)
     {
-      std::cout << "Exiting.\n";
+      cout << "Exiting.\n";
       break;
     }
     else
     {
-      std::cerr << "Error: invalid choice. Please select 1-6.\n";
+      cerr << "Error: invalid choice. Please select 1-6.\n";
     }
   }
 
